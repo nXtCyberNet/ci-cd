@@ -37,6 +37,14 @@ def delete_user(user_id):
     global users
     users = [user for user in users if user["id"] != user_id]
     return jsonify({"message": "User deleted"}), 200
+@app.route('/api/reset', methods=['POST'])
+def reset_users():
+    global users
+    users = [
+        {"id": 1, "name": "Alice", "email": "alice@example.com"},
+        {"id": 2, "name": "Bob", "email": "bob@example.com"}
+    ]
+    return jsonify({"message": "Users reset"}), 200
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5000)

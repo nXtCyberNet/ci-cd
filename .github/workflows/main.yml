@@ -1,3 +1,4 @@
+
 name: 'Build and Deploy to Cloud Run'
 
 on:
@@ -69,6 +70,12 @@ jobs:
           docker rm "$CONTAINER_ID"
           exit $TEST_STATUS
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_KEY_JSON }}'
+          token_format: 'access_token'
+          
       - name: 'Deploy to Cloud Run'
         uses: 'google-github-actions/deploy-cloudrun@v2'
         with:

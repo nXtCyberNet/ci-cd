@@ -1,4 +1,4 @@
-# 🚀 Build & Deploy to Cloud Run – Your First CI/CD Pipeline
+# 🚀 Build & Deploy to Cloud Run – My First CI/CD Pipeline
 
 Welcome! This repo shows you how to set up a simple yet powerful **CI/CD pipeline** using **GitHub Actions**.  
 Every time you push to the `main` branch, your **Python Flask API** app is automatically built, tested, and deployed to **Google Cloud Run**. 🎉
@@ -31,7 +31,7 @@ Before you begin, ensure you have the following:
   - `GCP_SERVICE` – your Cloud Run service name
   - `GCP_REGISTRY` – registry region, e.g. `us-central1`
   - `GCP_CREDENTIALS_JSON` – service account key in JSON format
-  - `GCP_CI_CD_ROUTE` – Flask API route to test (e.g. `/ci-cd`)
+  - `REGISTRY_NAME` - artifact registry name 
 
 ---
 

@@ -9,6 +9,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.GCP_REGION }}
   SERVICE: ${{ secrets.GCP_SERVICE }}
+  REGION_REGISTORY: ${{ secrets.GCP_REGISTRY }}
 
 jobs:
   deploy:
@@ -44,9 +45,9 @@ jobs:
       - name: 'Docker Auth'
         uses: 'docker/login-action@v3'
         with:
-          username: 'oauth2accesstoken'
-          password: '${{ steps.auth.outputs.auth_token }}'
-          registry: '${{ env.REGION }}-docker.pkg.dev'
+          username: '_json_key'
+          password: '${{ secrets.GCP_CREDENTIALS_JSON }}'
+          registry: '${{ env.REGION_REGISTORY }}-docker.pkg.dev'
 
       - name: 'Build and Push Container'
         run: |-

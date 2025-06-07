@@ -11,6 +11,8 @@ env:
   REGION: ${{ secrets.GCP_REGION }}
   SERVICE: ${{ secrets.GCP_SERVICE }}
   REGION_REGISTORY: ${{ secrets.GCP_REGISTRY }}
+  CLOUD_RUN_SERVICE_ACCOUNT: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
+  REGISTORY: ${{ secrets.REGISTRY_NAME }}
 
 jobs:
   deploy:
@@ -53,13 +55,13 @@ jobs:
       - name: 'Build and Push Container'
         run: |-
           gcloud auth configure-docker '${{ env.REGION_REGISTORY }}-docker.pkg.dev'
-          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
+          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{env.REGISTRY_NAME}}/test:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
 
       - name: 'Test Container'
         run: |-
-          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
+          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{env.REGISTRY_NAME}}/test:${{ github.sha }}"
           
           CONTAINER_ID=$(docker run -d -p 5000:5000 "$DOCKER_TAG")
           sleep 10
@@ -75,13 +77,13 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
           token_format: 'access_token'
-          
+
       - name: 'Deploy to Cloud Run'
         uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
           service: '${{ env.SERVICE }}'
           region: '${{ env.REGION }}'
-          image: "${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
+          image: '${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REGISTRY_NAME }}/test:${{ github.sha }}'
 
       - name: 'Show output'
         run: echo ${{ steps.deploy.outputs.url }}

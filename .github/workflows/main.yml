@@ -59,8 +59,14 @@ jobs:
       - name: 'Test Container'
         run: |-
           DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
-          docker run -p 5000:5000 "${DOCKER_TAG}"
+          docker run -p 5000:5000 -d "${DOCKER_TAG}"
+          sleep 10
           python -m unittest test.py
+          
+          TEST_STATUS=$?
+          docker stop "$CONTAINER_ID"
+          docker rm "$CONTAINER_ID"
+          exit $TEST_STATUS
 
       - name: 'Deploy to Cloud Run'
         uses: 'google-github-actions/deploy-cloudrun@v2'

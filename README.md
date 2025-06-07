@@ -79,6 +79,7 @@ graph TD
 Here's the actual workflow file at `.github/workflows/ci-cd.yaml`:
 
 ```yaml
+
 name: 'Build and Deploy to Cloud Run'
 
 on:
@@ -91,73 +92,79 @@ env:
   REGION: ${{ secrets.GCP_REGION }}
   SERVICE: ${{ secrets.GCP_SERVICE }}
   REGION_REGISTORY: ${{ secrets.GCP_REGISTRY }}
-  CI_CD_ROUTE: ${{ secrets.GCP_CI_CD_ROUTE }}
+  CLOUD_RUN_SERVICE_ACCOUNT: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
+  REGISTRY: ${{ secrets.REGISTRY_NAME }}
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
+
     permissions:
-      contents: read
-      id-token: write
+      contents: 'read'
+      id-token: 'write'
+
     strategy:
       matrix:
         python-version: [3.9]
+
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v4
+        uses: 'actions/checkout@v4'
 
       - name: 'Set up Python'
-        uses: actions/setup-python@v2
+        uses: 'actions/setup-python@v2'
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: 'Install dependencies'
-        run: pip install -r requirements.txt
+      - name: 'Install Python dependencies'
+        run: |
+          pip install -r requirements.txt
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
-        uses: google-github-actions/auth@v2
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
 
       - name: 'Docker Auth'
-        uses: docker/login-action@v3
+        uses: 'docker/login-action@v3'
         with:
-          username: _json_key
+          username: '_json_key'
           password: '${{ secrets.GCP_CREDENTIALS_JSON }}'
           registry: '${{ env.REGION_REGISTORY }}-docker.pkg.dev'
 
       - name: 'Build and Push Container'
-        run: |
+        run: |-
           gcloud auth configure-docker '${{ env.REGION_REGISTORY }}-docker.pkg.dev'
-          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
-          docker build -t "$DOCKER_TAG" .
-          docker push "$DOCKER_TAG"
+          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{env.REGISTRY}}/test:${{ github.sha }}"
+          docker build --tag "${DOCKER_TAG}" .
+          docker push "${DOCKER_TAG}"
 
       - name: 'Test Container'
-        run: |
-          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
+        run: |-
+          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{env.REGISTRY}}/test:${{ github.sha }}"
+          
           CONTAINER_ID=$(docker run -d -p 5000:5000 "$DOCKER_TAG")
           sleep 10
-          curl --fail http://localhost:5000${{ env.CI_CD_ROUTE }}
           python -m unittest test.py
+          
           TEST_STATUS=$?
           docker stop "$CONTAINER_ID"
           docker rm "$CONTAINER_ID"
           exit $TEST_STATUS
 
-      - name: 'Re-authenticate to Google Cloud'
+      - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
-          token_format: access_token
+          token_format: 'access_token'
 
       - name: 'Deploy to Cloud Run'
-        uses: google-github-actions/deploy-cloudrun@v2
+        uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
           service: '${{ env.SERVICE }}'
           region: '${{ env.REGION }}'
-          image: '${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}'
+          image: '${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REGISTRY }}/test:${{ github.sha }}'
 
       - name: 'Show output'
         run: echo ${{ steps.deploy.outputs.url }}

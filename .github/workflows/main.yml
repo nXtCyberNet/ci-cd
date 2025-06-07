@@ -81,7 +81,7 @@ jobs:
         with:
           service: '${{ env.SERVICE }}'
           region: '${{ env.REGION }}'
-          image: '${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}'
+          image: "${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
 
       - name: 'Show output'
         run: echo ${{ steps.deploy.outputs.url }}

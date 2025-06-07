@@ -12,7 +12,7 @@ env:
   SERVICE: ${{ secrets.GCP_SERVICE }}
   REGION_REGISTORY: ${{ secrets.GCP_REGISTRY }}
   CLOUD_RUN_SERVICE_ACCOUNT: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
-  REGISTORY: ${{ secrets.REGISTRY_NAME }}
+  REGISTRY: ${{ secrets.REGISTRY_NAME }}
 
 jobs:
   deploy:

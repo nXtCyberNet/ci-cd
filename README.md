@@ -49,6 +49,31 @@ Before you begin, ensure you have the following:
 
 ---
 
+### 🎨 Visual Workflow Diagram (Mermaid Syntax)
+
+
+
+
+```mermaid
+graph TD
+  A[Push to main branch] --> B[GitHub Actions Triggered]
+  B --> C[Checkout Repository]
+  C --> D[Set Up Python Environment]
+  D --> E[Install Dependencies]
+  E --> F[Authenticate with GCP]
+  F --> G[Docker Login to Artifact Registry]
+  G --> H[Build Docker Image]
+  H --> I[Push Image to Artifact Registry]
+  I --> J[Run Container Locally for Testing]
+  J --> K[Test Flask Route + Unit Tests]
+  K --> L{Tests Passed?}
+  L -- No --> M[Fail Job ❌]
+  L -- Yes --> N[Re-Authenticate to GCP]
+  N --> O[Deploy to Cloud Run]
+  O --> P[Output Cloud Run URL 🌐]
+```
+
+
 ## 📄 GitHub Actions Workflow
 
 Here's the actual workflow file at `.github/workflows/ci-cd.yaml`:
@@ -136,3 +161,5 @@ jobs:
 
       - name: 'Show output'
         run: echo ${{ steps.deploy.outputs.url }}
+```
+

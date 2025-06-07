@@ -58,7 +58,7 @@ jobs:
 
       - name: 'Test Container'
         run: |-
-          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}"
+          DOCKER_TAG="${{ env.REGION_REGISTORY }}-docker.pkg.dev/${{ env.PROJECT_ID }}/ci-cd/test:${{ github.sha }}"
           docker run -p 5000:5000 "${DOCKER_TAG}"
           python -m unittest test.py
 
